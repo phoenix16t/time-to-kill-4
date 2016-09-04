@@ -6,7 +6,7 @@
   <script src="dist/build.js"></script>
 </head>
 <body>
-  <div class="left-container">
+  <div class="container">
     <div id="inputs">
       <form>
         <p>Enter venue type: <input type="text" class="venue-type"></p>
@@ -17,7 +17,16 @@
       </form>
     </div>
 
-    <ul class="venues"></ul>
+    <div id="map"></div>
+
+    <div class="venue-wrapper">
+      <div class="arrows">
+        <div class="arrow left"><</div><!--
+         --><div class="arrow right">></div>
+      </div>
+      <ul class="venues"></ul>
+    </div>
+
   </div>
 
 </body>

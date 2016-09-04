@@ -12,17 +12,6 @@ var Geolocator = function() {
 Geolocator.prototype.constructor = Geolocator;
 
 /**
- * Starts the geolocator sequence
- * @returns {promise} the current zip code wrapped in a promise
- */
-Geolocator.prototype.findLocation = function() {
-  return this.findLatLng()
-  .then(function() {
-    return this.findZip();
-  }.bind(this));
-};
-
-/**
  * Find the latitude and longitude
  * @returns {promise} 
  */
@@ -30,7 +19,7 @@ Geolocator.prototype.findLatLng = function() {
   var deferred = q.defer();
 
   if(this.coords) {
-    deferred.resolve();
+    deferred.resolve(this.coords);
     return deferred.promise;
   }
   
@@ -40,8 +29,10 @@ Geolocator.prototype.findLatLng = function() {
         deferred.reject(new Error(err));
       }
       else {
-        this.coords = result.coords;
-        deferred.resolve();
+        this.lat = result.coords.latitude;
+        this.lng = result.coords.longitude;
+        this.coords = {lat: this.lat, lng: this.lng};
+        deferred.resolve(this.coords);
       }
     }.bind(this));
   }
@@ -61,8 +52,9 @@ Geolocator.prototype.findZip = function() {
     return deferred.promise;
   }
 
-  var latlng = new google.maps.LatLng(this.coords.latitude, this.coords.longitude);
+  var latlng = new google.maps.LatLng(this.lat, this.lng);
   var geocoder = new google.maps.Geocoder();
+
   geocoder.geocode({'latLng': latlng}, function(results, status) {
     if(status === google.maps.GeocoderStatus.OK) {
       var regex = /\w\w (\d{5}),/g;

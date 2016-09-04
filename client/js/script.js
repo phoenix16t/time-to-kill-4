@@ -1,6 +1,7 @@
 var q = require('q');
 var request = require('request');
 var Geolocator = require('./geolocator.js');
+var MapsHandler = require('./mapsHandler.js');
 
 /**
  * Main application entry point
@@ -10,7 +11,6 @@ var MainApplication = function() {
   this.submitBtn = document.querySelector('.submit');
   this.venueType = document.querySelector('.venue-type');
   this.time = document.querySelector('.spare-time');
-  this.venuesField = document.querySelector('.venues');
 
   this.zip = null;
 
@@ -23,39 +23,40 @@ MainApplication.prototype.constructor = MainApplication;
  * Initialize
  */
 MainApplication.prototype.init = function() {
-  this.initializeGeolocator();
-  this.findZip();
+  this.geolocator = new Geolocator();
+  this.mapsHandler = new MapsHandler();
+  this.findLocation();
 
   this.submitBtn.addEventListener('click', function() {
-    this.clickHandler();
+    this.submitHandler();
   }.bind(this));
 };
 
-MainApplication.prototype.initializeGeolocator = function() {
-  this.geolocator = new Geolocator();
-};
-
 /**
- * Click handler
+ * Submit handler
  */
-MainApplication.prototype.clickHandler = function() {
+MainApplication.prototype.submitHandler = function() {
   var time = this.time.value;
   var type = this.venueType.value;
 
-  return this.findZip()
+  return this.findLocation()
   .then(function(zip) {
     return this.handleRequest(time, type, zip)
   }.bind(this))
   .then(function(venues) {
-    this.displayVenues(venues);
+    this.mapsHandler.displayVenues(this.coords, venues);
   }.bind(this));
 };
 
-MainApplication.prototype.findZip = function() {
+MainApplication.prototype.findLocation = function() {
   var deferred = q.defer();
 
-  if(!this.zip) {
-    this.geolocator.findLocation()
+  if(!this.coords) {
+    return this.geolocator.findLatLng()
+    .then(function(coords) {
+      this.coords = coords;
+      return this.geolocator.findZip();
+    }.bind(this))
     .then(function(zip) {
       this.zip = zip;
       deferred.resolve(zip);
@@ -88,21 +89,6 @@ MainApplication.prototype.handleRequest = function(time, venueType, zip) {
   });
 
   return deferred.promise;
-};
-
-MainApplication.prototype.displayVenues = function(venues) {
-  this.venuesField.innerHTML = '';
-
-  venues.forEach(function(venue) {
-    var str = venue.name;
-    str += '<br>Address: ' + venue.address + ' ' + venue.zip;
-    str += '<br>Phone: ' + venue.phone;
-    str += '<br>Rating: ' + venue.rating + '<br>';
-
-    var el = document.createElement('li');
-    el.innerHTML = str;
-    this.venuesField.appendChild(el);
-  }.bind(this));
 };
 
 document.addEventListener("DOMContentLoaded", function(event) { 
