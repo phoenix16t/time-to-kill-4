@@ -1,7 +1,9 @@
 var q = require('q');
-var request = require('request');
 var Geolocator = require('./geolocator.js');
-var MapsHandler = require('./mapsHandler.js');
+var RequestHandler = require('./requestHandler.js');
+var VenueRenderer = require('./venueRenderer.js');
+
+var data = require("../../hidden/data.txt").server_data;
 
 /**
  * Main application entry point
@@ -9,86 +11,37 @@ var MapsHandler = require('./mapsHandler.js');
  */
 var MainApplication = function() {
   this.submitBtn = document.querySelector('.submit');
-  this.venueType = document.querySelector('.venue-type');
-  this.time = document.querySelector('.spare-time');
-
-  this.zip = null;
+  this.coords = null;
 
   this.init();
 };
 
 MainApplication.prototype.constructor = MainApplication;
 
-/**
- * Initialize
- */
 MainApplication.prototype.init = function() {
-  this.geolocator = new Geolocator();
-  this.mapsHandler = new MapsHandler();
-  this.findLocation();
+  this.locator = new Geolocator();
+  this.requestHandler = new RequestHandler(this.locator);
+  this.venueRenderer = new VenueRenderer();
+
+  this.locator.findLatLng();
 
   this.submitBtn.addEventListener('click', function() {
-    this.submitHandler();
+    this.killTime();
   }.bind(this));
 };
 
-/**
- * Submit handler
- */
-MainApplication.prototype.submitHandler = function() {
-  var time = this.time.value;
-  var type = this.venueType.value;
+MainApplication.prototype.killTime = function() {
+  var deferred = q.defer();
 
-  return this.findLocation()
-  .then(function(zip) {
-    return this.handleRequest(time, type, zip)
+  return this.locator.findLatLng()
+  .then(function(coords) {
+    this.coords = coords;
+    return this.requestHandler.onSubmit()
   }.bind(this))
   .then(function(venues) {
-    this.mapsHandler.displayVenues(this.coords, venues);
+    console.log("venues", venues)
+    this.venueRenderer.render(this.coords, venues);
   }.bind(this));
-};
-
-MainApplication.prototype.findLocation = function() {
-  var deferred = q.defer();
-
-  if(!this.coords) {
-    return this.geolocator.findLatLng()
-    .then(function(coords) {
-      this.coords = coords;
-      return this.geolocator.findZip();
-    }.bind(this))
-    .then(function(zip) {
-      this.zip = zip;
-      deferred.resolve(zip);
-    }.bind(this));
-  }
-  else {
-    deferred.resolve(this.zip);
-  }
-
-  return deferred.promise;
-};
-
-MainApplication.prototype.handleRequest = function(time, venueType, zip) {
-  var deferred = q.defer();
-
-  var data = {
-    time: time,
-    venueType: venueType,
-    zip: zip
-  };
-
-  var options = {
-    url: 'http://localhost:8080',
-    method: 'POST',
-    body: JSON.stringify(data)
-  };
-
-  request(options, function(error, response, body) {
-    deferred.resolve(JSON.parse(body));
-  });
-
-  return deferred.promise;
 };
 
 document.addEventListener("DOMContentLoaded", function(event) { 
