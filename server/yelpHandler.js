@@ -65,7 +65,7 @@ YelpHandler.prototype.parseResults = function(results) {
       return {
         id: business.id,
         name: business.name,
-        address: [locale.address[0],locale.city,locale.state_code].join(', ') ,
+        address: [locale.address[0],locale.city,locale.state_code].join(', '),
         zip: locale.postal_code,
         latitude: locale.coordinate.latitude,
         longitude: locale.coordinate.longitude,

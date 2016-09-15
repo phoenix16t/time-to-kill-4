@@ -46,13 +46,13 @@ TilesHandler.prototype.createButton = function(venue, i) {
   h4.innerHTML = venue.name;
   element.appendChild(h4);
 
-  var p = document.createElement('p');
-  p.innerHTML = venue.address + ' ' + venue.zip;
-  element.appendChild(p);
+  // var p = document.createElement('p');
+  // p.innerHTML = venue.address + ' ' + venue.zip;
+  // element.appendChild(p);
 
-  var p = document.createElement('p');
-  p.innerHTML = venue.phone;
-  element.appendChild(p);
+  // var p = document.createElement('p');
+  // p.innerHTML = venue.phone;
+  // element.appendChild(p);
 
   var p = document.createElement('p');
   p.innerHTML = 'Yelp rating: ' + venue.rating;

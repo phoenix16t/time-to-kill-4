@@ -3,16 +3,13 @@ var MapsHandler = require('./mapsHandler.js');
 var TilesHandler = require('./tilesHandler.js');
 
 var VenueRenderer = function() {
-  this.mapsHandler = new MapsHandler();
-  this.tilesHandler = new TilesHandler();
-
   this.arrows = document.querySelectorAll('.arrow');
   this.tileField = document.querySelector('.venues');
 
   this.tiles = [];
   this.markers = [];
   this.currentPage = 0;
-  this.pageThreshold = 20;
+  this.pageThreshold = 10;
 
   this.init();
 };
@@ -24,6 +21,9 @@ VenueRenderer.prototype.init = function() {
 };
 
 VenueRenderer.prototype.render = function(coords, venues) {
+  this.mapsHandler = new MapsHandler();
+  this.tilesHandler = new TilesHandler();
+
   this.markers = this.mapsHandler.buildMap(coords, venues);
   this.tiles = this.tilesHandler.buildTiles(venues);
   this.handleEvents();

@@ -1,6 +1,6 @@
+var q = require('q');
 var http = require('http');
 var VenueLocator = require('./venueLocator.js');
-var q = require('q');
 
 var setHeaders = function(response) {
   response.setHeader('Content-Type', 'application/json');

@@ -3,8 +3,8 @@ var request = require('request');
 
 var RequestHandler = function(locator) {
   this.locator = locator;
-  this.venueType = document.querySelector('.venue-type');
   this.time = document.querySelector('.spare-time');
+  this.venueType = document.querySelector('.venue-type');
 
   this.zip = null;
 
@@ -44,16 +44,12 @@ RequestHandler.prototype.findLocation = function() {
 /**
  * Submit handler
  */
-RequestHandler.prototype.onSubmit = function() {
+RequestHandler.prototype.onSubmit = function(venueType) {
   var time = this.time.value;
-  var type = this.venueType.value;
 
   return this.findLocation()
   .then(function(zip) {
-    return this.handleRequest(time, type, zip)
-  }.bind(this))
-  .then(function(venues) {
-    return venues;
+    return this.handleRequest(time, venueType, zip)
   }.bind(this));
 };
 
